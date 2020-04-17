@@ -5,7 +5,7 @@ import type { Mutators } from 'final-form-arrays'
 import type { FieldValidator, FieldSubscription } from 'final-form'
 import type { FieldArrayRenderProps, UseFieldArrayConfig } from './types'
 import defaultIsEqual from './defaultIsEqual'
-import useConstant from './useConstant'
+import useMapConstant from './useMapConstant'
 
 const all: FieldSubscription = fieldSubscriptionItems.reduce((result, key) => {
   result[key] = true
@@ -31,7 +31,7 @@ const useFieldArray = (
       'Array mutators not found. You need to provide the mutators from final-form-arrays to your form'
     )
   }
-  const mutators = useConstant<Mutators>(() =>
+  const mutators = useMapConstant<Mutators>(name, () =>
     // curry the field name onto all mutator calls
     Object.keys(formMutators).reduce((result, key) => {
       result[key] = (...args) => formMutators[key](name, ...args)
@@ -39,7 +39,8 @@ const useFieldArray = (
     }, {})
   )
 
-  const validate: FieldValidator = useConstant(
+  const validate: FieldValidator = useMapConstant(
+    name,
     () => (value, allValues, meta) => {
       if (!validateProp) return undefined
       const error = validateProp(value, allValues, meta)
